@@ -7,7 +7,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.14.0)
-    rake (10.5.0)
+    rake (13.0.1)
     zstd-ruby (1.4.4.0)
 
 PLATFORMS
@@ -16,7 +16,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.0)
   minitest (~> 5.0)
-  rake (~> 10.0)
+  rake (~> 13.0)
   sidekiq-compress!
   zstd-ruby
 
