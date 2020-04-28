@@ -1,8 +1,8 @@
 # Sidekiq::Compress
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sidekiq/compress`. To experiment with that code, run `bin/console` for an interactive prompt.
+Although it is a bad practice, one might have to pass huge string params to it's sidekiq worker, bloating redis memory. For such cases, *sidekiq-compress* can be used to compress worker's string parameters before pushing them to redis. When retrieving workers params from redis back, it decompresses compressed data and passes it to worker.  
 
-TODO: Delete this and the text above, and describe your gem
+This gem compresses sidekiq string params using facebook's [zstd](https://github.com/facebook/zstd) compression algorithm and thus reduces redis memory usage.
 
 ## Installation
 
@@ -22,7 +22,45 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+To use, add sidekiq-compress to the middleware chains, it can be done following way:
+
+```
+Sidekiq.configure_server do |config|
+  Sidekiq::Compress.configure_server_middleware config
+end
+
+Sidekiq.configure_client do |config|
+  Sidekiq::Compress.configure_client_middleware config
+end
+```
+
+And in your worker:
+
+```ruby
+class MyJob
+  include Sidekiq::Worker
+  include Sidekiq::Compress::Worker # compresses all string job params
+
+  def perform(*args)
+  # your code goes here
+  end
+end
+```
+
+Optionally, you can state explicitly which string params to compress with compress_params keyword:
+
+```ruby
+class MyJob
+  include Sidekiq::Worker
+  include Sidekiq::Compress::Worker # compresses string job params
+  
+  compress_params index: [0,2]
+
+  def perform(param1, param2, param3) # only param1 and param3 is compressed
+  # your code goes here
+  end
+end
+```
 
 ## Development
 
